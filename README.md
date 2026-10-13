@@ -51,11 +51,21 @@ curl -X POST localhost:8000/v1/mask -H "Content-Type: application/json" -d '{"te
 
 ## Examples
 
-| Input | Output |
-|---|---|
-| زرت المستشفى مع أخي فهد السبيعي في الرياض | زرت المستشفى مع أخي `<PERSON_1>` في `<LOCATION_1>` |
-| موبايلي 01012345678 والرقم القومي 29001010112345 | موبايلي `<PHONE_1>` والرقم القومي `<NATIONAL_ID_1>` |
-| Great care from Dr. Sara Al-Qahtani, MRN A-55821 | Great care from Dr. `<PERSON_1>`, MRN `<MRN_1>` |
+<table>
+<tr><th>Input</th><th>Output</th></tr>
+<tr>
+<td dir="rtl">زرت المستشفى مع أخي فهد السبيعي في الرياض</td>
+<td dir="rtl">زرت المستشفى مع أخي <code dir="ltr">&lt;PERSON_1&gt;</code> في <code dir="ltr">&lt;LOCATION_1&gt;</code></td>
+</tr>
+<tr>
+<td dir="rtl">موبايلي 01012345678 والرقم القومي 29001010112345</td>
+<td dir="rtl">موبايلي <code dir="ltr">&lt;PHONE_1&gt;</code> والرقم القومي <code dir="ltr">&lt;NATIONAL_ID_1&gt;</code></td>
+</tr>
+<tr>
+<td>Great care from Dr. Sara Al-Qahtani, MRN A-55821</td>
+<td>Great care from Dr. <code>&lt;PERSON_1&gt;</code>, MRN <code>&lt;MRN_1&gt;</code></td>
+</tr>
+</table>
 
 Replace with tags, types, `[REDACTED]`, partial masks (`******4567`) or stable keyed hashes.
 You can also pass values you already know, such as the patient's name from your database.
