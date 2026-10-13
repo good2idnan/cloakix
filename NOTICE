@@ -1,0 +1,19 @@
+Cloakix
+Copyright 2026 The Cloakix Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party models
+------------------
+Cloakix does not bundle model weights. When the optional NER feature is used,
+the following models are downloaded from the Hugging Face Hub at the pinned revisions:
+
+* CAMeL-Lab/bert-base-arabic-camelbert-mix-ner
+  CAMeL Lab, New York University Abu Dhabi. Apache License 2.0.
+  https://huggingface.co/CAMeL-Lab/bert-base-arabic-camelbert-mix-ner
+
+* dslim/bert-base-NER
+  David S. Lim. MIT License.
+  https://huggingface.co/dslim/bert-base-NER
+
+Their licenses apply to those models.
