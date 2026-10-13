@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="270" viewBox="0 0 860 270" role="img" aria-labelledby="t d">
+  <title id="t">Cloakix masking demo</title>
+  <desc id="d">An Arabic and English patient comment is scanned; the doctor's name, phone number, medical record number and email are replaced with the tags PERSON_1, PHONE_1, MRN_1 and EMAIL_1.</desc>
+  <defs>
+    <linearGradient id="scan" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="0.85" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#7dd3fc" stop-opacity="0.9"/>
+    </linearGradient>
+    <clipPath id="card"><rect x="1" y="1" width="858" height="268" rx="14"/></clipPath>
+  </defs>
+  <style>
+    .ar   { font: 500 22px "Segoe UI", "Noto Sans Arabic", "Geeza Pro", Tahoma, Arial, sans-serif; fill: #e2e8f0; }
+    .en   { font: 500 19px ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace; fill: #e2e8f0; }
+    .ui   { font: 600 12px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: 1.5px; }
+    .hit  { fill: #fbbf24; }
+    .person { fill: #c4b5fd; } .phone { fill: #6ee7b7; } .mrn { fill: #93c5fd; } .email { fill: #f9a8d4; }
+    .raw, .hl, .masked, .scan, .lbl-in, .lbl-out, .status-scan, .status-done {
+      animation-duration: 9s; animation-iteration-count: infinite; animation-timing-function: ease-in-out;
+    }
+    .raw    { animation-name: raw; }
+    .hl     { animation-name: hl; opacity: 0; }
+    .masked { animation-name: masked; opacity: 0; }
+    .scan   { animation-name: scan; animation-timing-function: linear; opacity: 0; }
+    .lbl-in { animation-name: lblin; }
+    .lbl-out, .status-done { animation-name: masked; opacity: 0; }
+    .status-scan { animation-name: hl; opacity: 0; }
+    @keyframes raw    { 0% {opacity:0} 4% {opacity:1} 22% {opacity:1} 26% {opacity:0} 100% {opacity:0} }
+    @keyframes hl     { 0%, 22% {opacity:0} 26% {opacity:1} 44% {opacity:1} 50% {opacity:0} 100% {opacity:0} }
+    @keyframes masked { 0%, 44% {opacity:0} 50% {opacity:1} 92% {opacity:1} 100% {opacity:0} }
+    @keyframes lblin  { 0% {opacity:0} 4% {opacity:1} 44% {opacity:1} 50% {opacity:0} 100% {opacity:0} }
+    @keyframes scan   {
+      0%, 20% { transform: translateX(-180px); opacity: 0; }
+      22%     { opacity: 1; }
+      43%     { opacity: 1; }
+      46%     { transform: translateX(880px); opacity: 0; }
+      100%    { transform: translateX(880px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .raw, .hl, .scan, .lbl-in, .status-scan { animation: none; opacity: 0; }
+      .masked, .lbl-out, .status-done { animation: none; opacity: 1; }
+    }
+  </style>
+
+  <g clip-path="url(#card)">
+    <rect width="860" height="270" fill="#0b1220"/>
+    <rect width="860" height="44" fill="#111a2e"/>
+    <circle cx="26" cy="22" r="6" fill="#f87171"/>
+    <circle cx="46" cy="22" r="6" fill="#fbbf24"/>
+    <circle cx="66" cy="22" r="6" fill="#34d399"/>
+    <text x="430" y="27" text-anchor="middle" class="ui" fill="#64748b">cloakix · masker.mask(comment)</text>
+
+    <!-- labels -->
+    <text x="40" y="78" class="ui lbl-in" fill="#fbbf24">INPUT</text>
+    <text x="40" y="78" class="ui lbl-out" fill="#34d399">MASKED</text>
+
+    <!-- line 1: Arabic (right to left) -->
+    <g transform="translate(820 125)">
+      <text class="ar raw" direction="rtl">الدكتور خالد الحربي كان ممتاز، جوالي ٠٥٥١٢٣٤٥٦٧</text>
+      <text class="ar hl" direction="rtl">الدكتور <tspan class="hit">خالد الحربي</tspan> كان ممتاز، جوالي <tspan class="hit">٠٥٥١٢٣٤٥٦٧</tspan></text>
+      <text class="ar masked" direction="rtl">الدكتور <tspan class="person">&#x2066;&lt;PERSON_1&gt;&#x2069;</tspan> كان ممتاز، جوالي <tspan class="phone">&#x2066;&lt;PHONE_1&gt;&#x2069;</tspan></text>
+    </g>
+
+    <!-- line 2: English -->
+    <g transform="translate(40 178)">
+      <text class="en raw">My MRN is 778812, email khalid.h@gmail.com</text>
+      <text class="en hl">My MRN is <tspan class="hit">778812</tspan>, email <tspan class="hit">khalid.h@gmail.com</tspan></text>
+      <text class="en masked">My MRN is <tspan class="mrn">&lt;MRN_1&gt;</tspan>, email <tspan class="email">&lt;EMAIL_1&gt;</tspan></text>
+    </g>
+
+    <!-- scanner -->
+    <rect class="scan" x="0" y="52" width="160" height="160" fill="url(#scan)"/>
+
+    <!-- footer -->
+    <line x1="40" y1="214" x2="820" y2="214" stroke="#1e293b"/>
+    <text x="40" y="243" class="ui status-scan" fill="#94a3b8">scanning · rules · check digits · context words · NER</text>
+    <text x="40" y="243" class="ui status-done" fill="#94a3b8">4 identifiers masked · nothing sent anywhere</text>
+    <g class="status-done" transform="translate(820 243)">
+      <text class="ui email" text-anchor="end">EMAIL</text>
+      <text class="ui mrn" text-anchor="end" x="-72">MRN</text>
+      <text class="ui phone" text-anchor="end" x="-124">PHONE</text>
+      <text class="ui person" text-anchor="end" x="-196">PERSON</text>
+    </g>
+  </g>
+  <rect x="0.5" y="0.5" width="859" height="269" rx="14" fill="none" stroke="#1e293b"/>
+</svg>
