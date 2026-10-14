@@ -18,9 +18,10 @@ NB = r"(?<![0-9A-Za-z])"
 NA = r"(?![0-9A-Za-z])"
 
 # An ID-like token: 3+ digits, optionally letters, "-" or "/" (778812, MR-12345, A1234567).
-# Plain years (1900-2099) are excluded so dates near a keyword are not taken as IDs.
+# Plain years (Gregorian 1900-2099, Hijri 1300-1499) are excluded so dates near a keyword
+# are not taken as IDs.
 ID_TOKEN = (
-    NB + r"(?!(?:19|20)[0-9]{2}" + NA + r")(?=[A-Za-z0-9/\-]*[0-9]{3})"
+    NB + r"(?!(?:13|14|19|20)[0-9]{2}" + NA + r")(?=[A-Za-z0-9/\-]*[0-9]{3})"
     r"[A-Za-z0-9][A-Za-z0-9/\-]{1,18}[A-Za-z0-9]" + NA
 )
 

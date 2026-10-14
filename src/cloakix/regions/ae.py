@@ -14,6 +14,28 @@ PHONE = PhoneRule(
 )
 
 
+CITIES = [
+    "دبي",
+    "أبوظبي",
+    "أبو ظبي",
+    "الشارقة",
+    "عجمان",
+    "رأس الخيمة",
+    "الفجيرة",
+    "أم القيوين",
+    "خورفكان",
+    "Dubai",
+    "Abu Dhabi",
+    "Sharjah",
+    "Ajman",
+    "Al Ain",
+    "Ras Al Khaimah",
+    "Fujairah",
+    "Umm Al Quwain",
+    "Khor Fakkan",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [
         PatternRecognizer(
@@ -30,10 +52,21 @@ def _recognizers() -> list[Recognizer]:
             validated_score=0.95,
             preprocess=digits_only,
             context_key="NATIONAL_ID",
-        )
+        ),
+        PatternRecognizer(
+            "ae_emirates_id_format",
+            "NATIONAL_ID",
+            # The dashed layout is distinctive enough to mask even with a mistyped check digit.
+            [Pattern(r"(?<![0-9A-Za-z])784-[0-9]{4}-[0-9]{7}-[0-9](?![0-9A-Za-z])", 0.6)],
+            context_key="NATIONAL_ID",
+        ),
     ]
 
 
 PACK = RegionPack(
-    code="ae", name="United Arab Emirates", phone_rules=[PHONE], recognizers=_recognizers
+    code="ae",
+    name="United Arab Emirates",
+    phone_rules=[PHONE],
+    recognizers=_recognizers,
+    cities=CITIES,
 )

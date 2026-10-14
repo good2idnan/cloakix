@@ -24,6 +24,25 @@ def test_arabic_relative_and_city(ner_masker: Masker) -> None:
     assert result.text == "زرت المستشفى مع أخي <PERSON_1> في <LOCATION_1>"
 
 
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        # The ID number is masked, the word "Iqama" in front of it is not.
+        (
+            "New employee Sara Al-Qahtani, Iqama 2012345670, mobile 0559998877",
+            "New employee <PERSON_1>, Iqama <NATIONAL_ID_1>, mobile <PHONE_1>",
+        ),
+        ("I waited 45 minutes in the ER", "I waited 45 minutes in the ER"),
+        ("Emirates ID 784-1990-1234567-6", "Emirates ID <NATIONAL_ID_1>"),
+        ("مستشفى الملك فهد تعامله راقي", "مستشفى الملك فهد تعامله راقي"),
+    ],
+)
+def test_model_does_not_mask_labels_and_common_words(
+    ner_masker: Masker, text: str, expected: str
+) -> None:
+    assert ner_masker.mask(text).text == expected
+
+
 def test_english_name_and_city(ner_masker: Masker) -> None:
     result = ner_masker.mask("I came with John Smith from Dubai.")
     assert result.text == "I came with <PERSON_1> from <LOCATION_1>."

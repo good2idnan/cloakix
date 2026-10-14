@@ -14,6 +14,64 @@ PHONE = PhoneRule(
 )
 
 
+CITIES = [
+    "الرياض",
+    "جدة",
+    "مكة",
+    "مكة المكرمة",
+    "المدينة المنورة",
+    "الدمام",
+    "الظهران",
+    "الطائف",
+    "تبوك",
+    "أبها",
+    "خميس مشيط",
+    "بريدة",
+    "عنيزة",
+    "حائل",
+    "جازان",
+    "جيزان",
+    "نجران",
+    "الجبيل",
+    "ينبع",
+    "الأحساء",
+    "الهفوف",
+    "القطيف",
+    "الباحة",
+    "عرعر",
+    "سكاكا",
+    "القصيم",
+    "Riyadh",
+    "Jeddah",
+    "Jiddah",
+    "Mecca",
+    "Makkah",
+    "Medina",
+    "Madinah",
+    "Dammam",
+    "Khobar",
+    "Al Khobar",
+    "Dhahran",
+    "Taif",
+    "Tabuk",
+    "Abha",
+    "Khamis Mushait",
+    "Buraidah",
+    "Unaizah",
+    "Jazan",
+    "Jizan",
+    "Najran",
+    "Jubail",
+    "Yanbu",
+    "Al Ahsa",
+    "Al-Ahsa",
+    "Hofuf",
+    "Qatif",
+    "Al Baha",
+    "Qassim",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [
         PatternRecognizer(
@@ -28,4 +86,6 @@ def _recognizers() -> list[Recognizer]:
     ]
 
 
-PACK = RegionPack(code="sa", name="Saudi Arabia", phone_rules=[PHONE], recognizers=_recognizers)
+PACK = RegionPack(
+    code="sa", name="Saudi Arabia", phone_rules=[PHONE], recognizers=_recognizers, cities=CITIES
+)

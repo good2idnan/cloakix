@@ -45,6 +45,11 @@ def _is_arabic_diacritic(cp: int) -> bool:
     return 0x064B <= cp <= 0x065F or cp == 0x0670
 
 
+def _is_removed(ch: str) -> bool:
+    cp = ord(ch)
+    return cp in _REMOVE or _is_arabic_diacritic(cp)
+
+
 @dataclass(frozen=True)
 class NormalizedText:
     """Normalized text plus, for every normalized character, its index in the original."""
@@ -54,10 +59,17 @@ class NormalizedText:
     index_map: tuple[int, ...]
 
     def to_original(self, start: int, end: int) -> tuple[int, int]:
-        """Convert a ``[start, end)`` span in normalized text to the original text."""
+        """Convert a ``[start, end)`` span in normalized text to the original text.
+
+        Invisible characters right after the span (tatweel, diacritics, zero-width marks)
+        are included, so masking ``هـ`` does not leave a stray ``ـ`` behind.
+        """
         if not self.index_map or start >= end:
             return start, end
-        return self.index_map[start], self.index_map[end - 1] + 1
+        orig_start, orig_end = self.index_map[start], self.index_map[end - 1] + 1
+        while orig_end < len(self.original) and _is_removed(self.original[orig_end]):
+            orig_end += 1
+        return orig_start, orig_end
 
 
 def normalize(text: str) -> NormalizedText:

@@ -42,7 +42,12 @@ def _recognizers() -> list[Recognizer]:
     ]
 
 
-PACK = RegionPack(code="jo", name="Jordan", phone_rules=[PHONE], recognizers=_recognizers)
+CITIES = ["عمّان", "إربد", "الزرقاء", "Amman", "Irbid", "Zarqa"]  # masked as LOCATION
+
+
+PACK = RegionPack(
+    code="jo", name="Jordan", phone_rules=[PHONE], recognizers=_recognizers, cities=CITIES
+)
 ```
 
 2. Register it in `src/cloakix/regions/__init__.py` (and optionally add it to a group such as

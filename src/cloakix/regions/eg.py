@@ -15,6 +15,50 @@ PHONE = PhoneRule(
 )
 
 
+CITIES = [
+    "القاهرة",
+    "الإسكندرية",
+    "الجيزة",
+    "المنصورة",
+    "طنطا",
+    "أسيوط",
+    "الأقصر",
+    "أسوان",
+    "بورسعيد",
+    "بور سعيد",
+    "السويس",
+    "الإسماعيلية",
+    "الزقازيق",
+    "دمياط",
+    "المنيا",
+    "سوهاج",
+    "الفيوم",
+    "بني سويف",
+    "شرم الشيخ",
+    "الغردقة",
+    "Cairo",
+    "Alexandria",
+    "Giza",
+    "Mansoura",
+    "Tanta",
+    "Asyut",
+    "Assiut",
+    "Luxor",
+    "Aswan",
+    "Port Said",
+    "Suez",
+    "Ismailia",
+    "Zagazig",
+    "Damietta",
+    "Minya",
+    "Sohag",
+    "Fayoum",
+    "Beni Suef",
+    "Sharm El Sheikh",
+    "Hurghada",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [
         PatternRecognizer(
@@ -29,4 +73,6 @@ def _recognizers() -> list[Recognizer]:
     ]
 
 
-PACK = RegionPack(code="eg", name="Egypt", phone_rules=[PHONE], recognizers=_recognizers)
+PACK = RegionPack(
+    code="eg", name="Egypt", phone_rules=[PHONE], recognizers=_recognizers, cities=CITIES
+)

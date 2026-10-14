@@ -109,6 +109,50 @@ NER_MODEL = NerModelSpec(
 )
 
 
+# Words the NER model sometimes tags as a person or place on their own
+# ("waited in the ER", "Emirates ID", "Iqama 2012345670"). Titles are included so a lone
+# "Dr" is never masked; the name after it still is.
+NER_IGNORE = [
+    *TITLES,
+    "ER",
+    "ICU",
+    "NICU",
+    "PICU",
+    "CCU",
+    "OPD",
+    "OR",
+    "ENT",
+    "MRI",
+    "CT",
+    "ECG",
+    "EKG",
+    "IV",
+    "ID",
+    "IDs",
+    "Iqama",
+    "Emirates",
+    "Emirati",
+    "Hospital",
+    "Clinic",
+    "Pharmacy",
+    "Reception",
+    "Emergency",
+    "Ward",
+    "Lab",
+    "Radiology",
+    "Insurance",
+    "COVID",
+    "Covid",
+    "WhatsApp",
+    "Gmail",
+    "Hotmail",
+    "Outlook",
+    "Absher",
+    "Tawakkalna",
+    "Sehhaty",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [EnglishTitleNameRecognizer(TITLES, STRONG_TITLES)]
 
@@ -119,4 +163,5 @@ PACK = LanguagePack(
     context=CONTEXT,
     recognizers=_recognizers,
     ner_model=NER_MODEL,
+    ner_ignore=NER_IGNORE,
 )

@@ -15,7 +15,7 @@
 | `EMAIL`, `URL`, `IP_ADDRESS`, `SOCIAL_HANDLE` | `a@b.com`, `https://…`, `10.0.0.1`, `@user` | Patterns + validation |
 | `DATE` | `12/03/2026`, `5 مارس 2026`, `3 رمضان 1447 هـ` | Gregorian and Hijri patterns |
 | `ADDRESS` | `ص.ب 12345`, `P.O. Box 1234`, postal codes near a keyword | Patterns + context |
-| `LOCATION` | `الرياض`, `Dubai` | NER models |
+| `LOCATION` | `الرياض`, `بجدة`, `Dubai` | City list for the GCC and Egypt + NER models |
 | `ORGANIZATION` | hospital or company names | NER models, **kept by default** |
 | `ID_NUMBER` | any other number with 6+ digits | Safety net (`catch_all_numbers`) |
 

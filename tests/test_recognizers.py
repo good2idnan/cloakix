@@ -56,6 +56,13 @@ def test_emirates_id_with_dashes(masker: Masker) -> None:
     assert found(masker, f"Emirates ID {formatted}") == [("NATIONAL_ID", formatted)]
 
 
+def test_emirates_id_with_wrong_check_digit_is_still_masked(masker: Masker) -> None:
+    eid = make_luhn("78419901234567")
+    typo = eid[:-1] + str((int(eid[-1]) + 1) % 10)
+    formatted = f"{typo[:3]}-{typo[3:7]}-{typo[7:14]}-{typo[14]}"
+    assert found(masker, f"رقم الهوية {formatted}") == [("NATIONAL_ID", formatted)]
+
+
 def test_egypt_national_id(masker: Masker) -> None:
     assert found(masker, "الرقم القومي 29001010112345") == [("NATIONAL_ID", "29001010112345")]
 
@@ -122,7 +129,7 @@ def test_dates(masker: Masker) -> None:
 
 
 def test_po_box(masker: Masker) -> None:
-    assert found(masker, "ص.ب 12345 الرياض") == [("ADDRESS", "ص.ب 12345")]
+    assert found(masker, "ص.ب 12345 الرياض") == [("ADDRESS", "ص.ب 12345"), ("LOCATION", "الرياض")]
 
 
 # --- names (rules) ------------------------------------------------------------------------
@@ -153,3 +160,34 @@ def test_two_titles_give_two_names(masker: Masker) -> None:
         ("PERSON", "عبد الله القحطاني"),
         ("PERSON", "نورة"),
     ]
+
+
+# --- cities (gazetteer, no model needed) --------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "text, city",
+    [
+        ("الدكتور ما شافني في فرع جدة", "جدة"),
+        ("ساكن بجدة من سنتين", "جدة"),
+        ("رحت للرياض أمس", "رياض"),
+        ("حجزت في الإسكندرية", "الإسكندرية"),
+        ("The branch in Al Khobar was clean", "Al Khobar"),
+        ("I flew from Cairo", "Cairo"),
+    ],
+)
+def test_city_names(masker: Masker, text: str, city: str) -> None:
+    assert found(masker, text) == [("LOCATION", city)]
+
+
+def test_common_words_are_not_cities(masker: Masker) -> None:
+    assert found(masker, "العين حمراء والخبر وصلني متأخر") == []
+    assert found(masker, "There was hail outside") == []
+
+
+# --- invisible characters around a value ---------------------------------------------------
+
+
+def test_hijri_date_masks_the_whole_marker(masker: Masker) -> None:
+    text = "الموعد 12 رمضان 1447 هـ تأجل"
+    assert masker.mask(text).text == "الموعد <DATE_1> تأجل"

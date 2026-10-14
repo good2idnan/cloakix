@@ -16,6 +16,7 @@ from cloakix.operators import Replacer
 from cloakix.packs import DomainPack, LanguagePack
 from cloakix.recognizers import common
 from cloakix.recognizers.base import AnalysisInput, ContextMatcher, Recognizer
+from cloakix.recognizers.cities import CityRecognizer
 from cloakix.recognizers.known import KnownValuesRecognizer
 from cloakix.recognizers.phone import PhoneRecognizer
 from cloakix.regions import resolve_regions
@@ -97,13 +98,14 @@ class Masker:
         Replacer(operator, self._operators, self._hash_key)  # validate early
 
         self.score_threshold = score_threshold
-        self._context = self._build_context()
+        self._context_terms = self._collect_context_terms()
+        self._context = ContextMatcher(self._context_terms)
         self._recognizers = self._build_recognizers(catch_all_numbers)
         self._ner = self._build_ner(ner, device)
 
     # -- construction -----------------------------------------------------------------------
 
-    def _build_context(self) -> ContextMatcher:
+    def _collect_context_terms(self) -> dict[str, list[str]]:
         terms: dict[str, list[str]] = {}
         for lang in self.languages:
             for key, words in lang.context.items():
@@ -114,12 +116,23 @@ class Masker:
                 if lang_code in lang_codes:
                     for key, words in context.items():
                         terms.setdefault(key, []).extend(words)
-        return ContextMatcher(terms)
+        return terms
+
+    def _ner_ignore_words(self) -> set[str]:
+        """Words a model detection may not consist of: the language packs' ignore lists plus
+        every single-word context keyword ("Iqama", "MRN", "جوال" …), which label a value
+        but are never personal data themselves."""
+        words = {w for lang in self.languages for w in lang.ner_ignore}
+        words |= {w for ws in self._context_terms.values() for w in ws if " " not in w.strip()}
+        return words
 
     def _build_recognizers(self, catch_all_numbers: bool) -> list[Recognizer]:
         recognizers: list[Recognizer] = common.default_recognizers(catch_all_numbers)
         phone_rules = [rule for region in self.regions for rule in region.phone_rules]
         recognizers.append(PhoneRecognizer(phone_rules))
+        cities = [city for region in self.regions for city in region.cities]
+        if cities:
+            recognizers.append(CityRecognizer(cities))
         for region in self.regions:
             recognizers.extend(region.recognizers())
         for domain in self.domains:
@@ -140,8 +153,9 @@ class Masker:
             return []
         from cloakix.ner.transformers_ner import TransformersNerRecognizer
 
+        ignore = self._ner_ignore_words()
         return [
-            TransformersNerRecognizer(lang.ner_model, device=device)
+            TransformersNerRecognizer(lang.ner_model, device=device, ignore=ignore)
             for lang in self.languages
             if lang.ner_model is not None
         ]

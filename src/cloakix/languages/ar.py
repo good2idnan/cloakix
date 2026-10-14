@@ -320,6 +320,45 @@ NER_MODEL = NerModelSpec(
 )
 
 
+# Words the NER model sometimes tags as a person or place on their own ("مستشفى الملك فهد").
+# Titles are included so a lone "الدكتور" is never masked; the name after it still is.
+NER_IGNORE = [
+    *TITLES,
+    *STRONG_TITLES,
+    "الملك",
+    "الملكة",
+    "الأمير",
+    "الأميرة",
+    "الشيخة",
+    "السلطان",
+    "مستشفى",
+    "المستشفى",
+    "مستوصف",
+    "المستوصف",
+    "عيادة",
+    "العيادة",
+    "مجمع",
+    "المجمع",
+    "الطوارئ",
+    "الاستقبال",
+    "الصيدلية",
+    "المختبر",
+    "الأشعة",
+    "التنويم",
+    "العناية",
+    "المركزة",
+    "التأمين",
+    "الإقامة",
+    "الهوية",
+    "الجوال",
+    "واتساب",
+    "كورونا",
+    "أبشر",
+    "توكلنا",
+    "صحتي",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [ArabicTitleNameRecognizer(TITLES, STRONG_TITLES, STOPWORDS, SKIP_WORDS)]
 
@@ -330,4 +369,5 @@ PACK = LanguagePack(
     context=CONTEXT,
     recognizers=_recognizers,
     ner_model=NER_MODEL,
+    ner_ignore=NER_IGNORE,
 )

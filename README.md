@@ -154,8 +154,9 @@ mixed comments:
 
 | | |
 |---|---|
-| Direct identifiers masked | **99.3%** (phones, IDs, cards, IBANs, emails, MRNs: 100%) |
-| Latency per request | ~40 ms typical, ~75 ms for the slowest 5% |
+| Identifiers masked | **99.3%** (phones, IDs, cards, IBANs, emails, MRNs, cities, dates: 100%) |
+| Clean comments wrongly changed | **0 of 150** |
+| Latency per request | ~45 ms typical, under 100 ms for 95% of requests |
 | Memory | ~700 MB per container |
 
 Results on synthetic data are a starting point. Always evaluate on a sample of your own data.

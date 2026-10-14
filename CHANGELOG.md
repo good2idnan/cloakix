@@ -4,7 +4,18 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.1] - 2026-10-14
+
+### Added
+- City gazetteer for the GCC and Egypt (Arabic and English spellings, attached Arabic prefixes
+  such as `بجدة` / `للرياض`), so cities the NER model misses are still masked as `LOCATION`.
+- Emirates IDs written in the dashed format are masked even when the check digit is mistyped.
+
+### Fixed
+- NER false positives: labels and common words such as `Iqama`, `ER`, `Emirates`, `الملك` or
+  `مستشفى` are no longer masked on their own. The ID or name next to them still is.
+- Hijri dates: the tatweel in `هـ` is now masked with the date instead of being left behind.
+- Hijri years (13xx/14xx) next to a keyword are no longer taken as reference numbers.
 
 ### Changed
 - README rewritten for general use (support, banking, government, HR, healthcare) with a

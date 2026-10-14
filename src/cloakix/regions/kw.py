@@ -16,6 +16,22 @@ PHONE = PhoneRule(
 )
 
 
+CITIES = [
+    "حولي",
+    "الجهراء",
+    "الفروانية",
+    "الأحمدي",
+    "السالمية",
+    "مدينة الكويت",
+    "Kuwait City",
+    "Hawalli",
+    "Jahra",
+    "Farwaniya",
+    "Ahmadi",
+    "Salmiya",
+]
+
+
 def _recognizers() -> list[Recognizer]:
     return [
         PatternRecognizer(
@@ -30,4 +46,6 @@ def _recognizers() -> list[Recognizer]:
     ]
 
 
-PACK = RegionPack(code="kw", name="Kuwait", phone_rules=[PHONE], recognizers=_recognizers)
+PACK = RegionPack(
+    code="kw", name="Kuwait", phone_rules=[PHONE], recognizers=_recognizers, cities=CITIES
+)

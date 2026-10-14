@@ -26,6 +26,8 @@ class LanguagePack:
 
     ``context`` maps a context key (e.g. ``"PHONE"``, ``"MRN"``) to words that, when found
     near a candidate value, raise its score.
+    ``ner_ignore`` lists words the NER model sometimes mistakes for names or places
+    (e.g. "ER", "Iqama", "الملك"); a model detection made only of these words is dropped.
     """
 
     code: str
@@ -33,16 +35,22 @@ class LanguagePack:
     context: ContextTerms
     recognizers: Callable[[], list[Recognizer]] = _no_recognizers
     ner_model: NerModelSpec | None = None
+    ner_ignore: Sequence[str] = ()
 
 
 @dataclass(frozen=True)
 class RegionPack:
-    """Identifier formats for one country."""
+    """Identifier formats and city names for one country.
+
+    ``cities`` may mix Arabic and English spellings. Avoid names that are also common
+    words (e.g. "العين" = "the eye"), which would be masked everywhere.
+    """
 
     code: str
     name: str
     phone_rules: Sequence[PhoneRule] = ()
     recognizers: Callable[[], list[Recognizer]] = _no_recognizers
+    cities: Sequence[str] = ()
 
 
 @dataclass(frozen=True)

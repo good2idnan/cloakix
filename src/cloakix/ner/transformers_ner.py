@@ -8,9 +8,11 @@ The model is downloaded from the Hugging Face Hub on first use and cached locall
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterable
 from typing import Any
 
 from cloakix.ner.spec import NerModelSpec
+from cloakix.normalize import fold
 from cloakix.recognizers.base import AnalysisInput, Detection, Recognizer
 
 INSTALL_HINT = 'NER models need extra packages: pip install "cloakix[ner]"'
@@ -40,15 +42,30 @@ def _expand_to_word(text: str, start: int, end: int) -> tuple[int, int]:
 
 
 class TransformersNerRecognizer(Recognizer):
+    """Names, places and organizations from a token-classification model.
+
+    ``ignore`` lists words (any case/spelling variant) that the model sometimes mislabels,
+    such as "ER", "Iqama" or "الملك". A detection made only of ignored words is dropped.
+    """
+
     def __init__(
-        self, spec: NerModelSpec, device: int | str | None = None, max_chars: int = 1000
+        self,
+        spec: NerModelSpec,
+        device: int | str | None = None,
+        max_chars: int = 1000,
+        ignore: Iterable[str] = (),
     ) -> None:
         self.spec = spec
         self.name = f"ner_{spec.language}"
         self.device = -1 if device is None else device
         self.max_chars = max_chars
+        self.ignore = frozenset(fold(w).strip() for w in ignore if w.strip())
         self._pipe: Any = None
         self._lock = threading.Lock()
+
+    def _ignored(self, folded_span: str) -> bool:
+        words = folded_span.replace("-", " ").split()
+        return bool(words) and all(w in self.ignore for w in words)
 
     def load(self) -> None:
         """Download (if needed) and load the model. Called lazily on first use."""
@@ -94,5 +111,7 @@ class TransformersNerRecognizer(Recognizer):
                     if entity_type is None or p["start"] is None:
                         continue
                     start, end = _expand_to_word(data.text, base + p["start"], base + p["end"])
+                    if self._ignored(data.folded[start:end]):
+                        continue
                     out.append(Detection(entity_type, start, end, float(p["score"]), self.name))
         return out
