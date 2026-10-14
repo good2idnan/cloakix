@@ -179,13 +179,6 @@ Each language, country or industry is one plug-in file. See [Extending](docs/ext
 | [How it works](docs/how-it-works.md) | Normalization, scoring, merging |
 | [Extending](docs/extending.md) | Add a country, language or industry |
 
-## Roadmap
-
-- Fine-tuned Arabic NER for Gulf and Egyptian dialects
-- Reversible masking with an encrypted vault, so LLM answers can be restored
-- More countries (Jordan, Iraq, Pakistan…) and languages (Urdu)
-- Structured inputs (JSON, CSV, FHIR) and PDF/OCR
-
 ## Limitations
 
 Cloakix reduces risk but cannot guarantee that every identifier is found. Keep a human review
