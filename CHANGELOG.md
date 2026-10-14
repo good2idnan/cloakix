@@ -7,8 +7,9 @@ uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Changed
-- Shorter README with an animated demo; details moved to `docs/usage.md`, `docs/api.md` and
-  `docs/entities.md`.
+- README rewritten for general use (support, banking, government, HR, healthcare) with a
+  recorded GIF demo, an "Under the hood" section and performance numbers.
+- Usage, API and identifier details moved to `docs/usage.md`, `docs/api.md` and `docs/entities.md`.
 
 ## [0.1.0] - 2026-10-13
 
