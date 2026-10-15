@@ -20,7 +20,7 @@
 Cloakix finds personal identifiers (names, phone numbers, national IDs, payment cards, IBANs,
 medical record numbers and more) and replaces them with safe tags such as `<PERSON_1>`.
 It is built for **Arabic, English and mixed text**, with validated formats for the **Gulf (GCC)
-and Egypt**. It runs **entirely on your own servers**.
+and Egypt**.
 
 ## Why Cloakix
 
@@ -33,17 +33,6 @@ and Egypt**. It runs **entirely on your own servers**.
 - **Private by design.** No external calls and no telemetry. Results never contain the original
   values.
 - **Use it from any stack.** A Python library, a REST API, a CLI and a Docker image.
-
-## Use cases
-
-| | |
-|---|---|
-| **AI and LLM applications** | Mask prompts and documents before sending them to any LLM API |
-| **Customer support and CRM** | Tickets, chats, emails and call transcripts |
-| **Banking and fintech** | Card numbers, IBANs, account numbers, customer IDs |
-| **Healthcare** | Patient feedback, notes, MRNs and insurance numbers |
-| **Government and HR** | National IDs, Iqama, Emirates ID, passports, employee records |
-| **Analytics and logs** | Store, analyse and share text without exposing identities |
 
 ## Quick start
 
@@ -115,20 +104,23 @@ Full list with validation rules: [docs/entities.md](docs/entities.md).
 
 ## Under the hood
 
-```
-text ─► normalize ─► detect ─────────────────────────────► merge ─► replace
-         (digits,     rules + check digits · context words      (overlaps,   (<PERSON_1>,
-          Unicode)    name rules · NER models · known values     priority)    ******4567 …)
-```
+Cloakix combines **rules** and **AI models**:
 
-| Layer | Technology | |
+- **Rules** find everything with a format: phones, national IDs, cards, IBANs, emails, dates,
+  cities, and numbers labelled by nearby words such as `رقم الملف`. IDs are verified with
+  check digits.
+- **AI models** find names and places, which no pattern can describe.
+
+| Part | Technology | Install |
 |---|---|---|
-| Detection engine | Cloakix's own engine, pure Python standard library (`re`, `unicodedata`, `hmac`, `ipaddress`) | core, no dependencies |
-| Arabic names and places | [CAMeLBERT-Mix NER](https://huggingface.co/CAMeL-Lab/bert-base-arabic-camelbert-mix-ner) by CAMeL Lab, NYU Abu Dhabi (Apache-2.0) | optional `[ner]` |
-| English names and places | [BERT-base NER](https://huggingface.co/dslim/bert-base-NER) (MIT) | optional `[ner]` |
-| Model runtime | Hugging Face Transformers + PyTorch, CPU is enough | optional `[ner]` |
-| REST API | FastAPI · Uvicorn · Pydantic | optional `[api]` |
-| Packaging | Docker image with the models included, runs offline | |
+| Rules engine | Cloakix's own code (Python standard library only) | included |
+| Arabic names and places | [CAMeLBERT-Mix NER](https://huggingface.co/CAMeL-Lab/bert-base-arabic-camelbert-mix-ner), CAMeL Lab, NYU Abu Dhabi (Apache-2.0) | `[ner]` |
+| English names and places | [BERT-base NER](https://huggingface.co/dslim/bert-base-NER) (MIT) | `[ner]` |
+| Model runtime | Hugging Face Transformers + PyTorch, CPU only | `[ner]` |
+| REST API | FastAPI · Uvicorn | `[api]` |
+
+Without the models, Cloakix still runs on rules alone. Names are then found only after titles
+such as `الدكتور` or `Dr.`. [How it works →](docs/how-it-works.md)
 
 ## Performance
 
