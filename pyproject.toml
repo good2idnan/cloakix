@@ -61,7 +61,7 @@ Changelog = "https://github.com/good2idnan/cloakix/blob/main/CHANGELOG.md"
 packages = ["src/cloakix"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/cloakix", "tests", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
+include = ["src/cloakix", "tests", "licenses", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

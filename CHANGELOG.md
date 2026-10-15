@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `licenses/` folder with the full license texts of the two NER models; the Docker image,
+  which includes the models, now ships these texts.
+
 ## [0.1.1] - 2026-10-14
 
 ### Added

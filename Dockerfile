@@ -10,6 +10,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE NOTICE ./
+# The image redistributes the NER models, so their license texts ship with it.
+COPY licenses ./licenses
 COPY src ./src
 
 # CPU-only PyTorch keeps the image small. Models are downloaded at build time.

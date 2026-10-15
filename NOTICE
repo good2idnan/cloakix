@@ -5,15 +5,20 @@ This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
 Third-party models
 ------------------
-Cloakix does not bundle model weights. When the optional NER feature is used,
-the following models are downloaded from the Hugging Face Hub at the pinned revisions:
+The Git repository and the Python package do not contain model weights. When the optional
+NER feature is used, the following models are downloaded from the Hugging Face Hub at
+pinned revisions. The Cloakix Docker image includes them. Their full license texts are in
+the licenses/ folder.
 
 * CAMeL-Lab/bert-base-arabic-camelbert-mix-ner
   CAMeL Lab, New York University Abu Dhabi. Apache License 2.0.
   https://huggingface.co/CAMeL-Lab/bert-base-arabic-camelbert-mix-ner
+  See licenses/camelbert-mix-ner.Apache-2.0.txt
 
 * dslim/bert-base-NER
-  David S. Lim. MIT License.
+  Hugging Face user "dslim". MIT License.
+  Fine-tuned from google-bert/bert-base-cased (Google, Apache License 2.0).
   https://huggingface.co/dslim/bert-base-NER
+  See licenses/bert-base-NER.MIT.txt
 
 Their licenses apply to those models.
