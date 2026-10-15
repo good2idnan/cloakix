@@ -7,6 +7,7 @@ The model is downloaded from the Hugging Face Hub on first use and cached locall
 
 from __future__ import annotations
 
+import os
 import threading
 from collections.abc import Iterable
 from typing import Any
@@ -82,6 +83,11 @@ class TransformersNerRecognizer(Recognizer):
         progress = hf_logging.is_progress_bar_enabled()
         hf_logging.set_verbosity_error()
         hf_logging.disable_progress_bar()
+        # When a pinned revision only has .bin weights, transformers starts a background
+        # download of a safetensors copy from an unmerged Hub pull request (conversion bot).
+        # That copy is never used for the pinned revision; switch the download off.
+        conversion = os.environ.get("DISABLE_SAFETENSORS_CONVERSION")
+        os.environ["DISABLE_SAFETENSORS_CONVERSION"] = "1"
         try:
             self._pipe = pipeline(
                 "token-classification",
@@ -94,6 +100,10 @@ class TransformersNerRecognizer(Recognizer):
             hf_logging.set_verbosity(verbosity)
             if progress:
                 hf_logging.enable_progress_bar()
+            if conversion is None:
+                os.environ.pop("DISABLE_SAFETENSORS_CONVERSION", None)
+            else:
+                os.environ["DISABLE_SAFETENSORS_CONVERSION"] = conversion
 
     def analyze(self, data: AnalysisInput) -> list[Detection]:
         segments = [s for s in data.segments if s[2] == self.spec.language]

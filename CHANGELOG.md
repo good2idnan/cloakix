@@ -4,7 +4,22 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.2] - 2026-10-15
+
+### Security
+- Hostile inputs such as `1-1-1-…` or `a/a/a/…` (20,000 characters) took 5–7 s because of
+  quadratic regex backtracking; they now take about 0.1 s. Overlap resolution is also
+  O(n log n), so texts with thousands of identifiers stay fast.
+- API validation errors (HTTP 422) no longer echo the submitted text, which could contain
+  personal data.
+- API `known` values are limited (200 values, 200 characters each, real identifier types
+  only); known values are matched in one pass per type.
+- Loading a model no longer starts a background download of an unmerged, auto-converted
+  weights file from the Hugging Face Hub; only the pinned revision is downloaded.
+- A non-ASCII `X-API-Key` header now returns 401 instead of a server error.
+- Words longer than 64 characters (URLs, long IDs, hostile input) are no longer sent to the
+  NER models, which took ~10 s for a 20,000-character run; the rules still check them.
+- Batch requests are limited to 100,000 characters in total (`CLOAKIX_MAX_BATCH_CHARS`).
 
 ### Added
 - `licenses/` folder with the full license texts of the two NER models; the Docker image,

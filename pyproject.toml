@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cloakix"
-version = "0.1.1"
+version = "0.1.2"
 description = "Detect and mask personal identifiers (PII/PHI) in Arabic and English text."
 readme = "README.md"
 license = "Apache-2.0"

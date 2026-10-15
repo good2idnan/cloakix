@@ -39,11 +39,14 @@ class KnownValuesRecognizer(Recognizer):
     name = "known_value"
 
     def __init__(self, values: Mapping[str, Iterable[str]], split_names: bool = True) -> None:
+        # One combined pattern per entity type: a single pass over the text, however many
+        # values are given. Longer values come first so a full name wins over its parts.
         self._patterns: list[tuple[str, re.Pattern[str]]] = []
         for entity_type, items in values.items():
+            candidates: set[str] = set()
             for value in items:
-                candidates = {value}
-                if split_names and entity_type == "PERSON":
+                candidates.add(value)
+                if split_names and entity_type.upper() == "PERSON":
                     for part in fold(normalize(value).text).split():
                         if (
                             len(part) >= 3
@@ -51,10 +54,14 @@ class KnownValuesRecognizer(Recognizer):
                             and part not in _EN_CONNECTORS
                         ):
                             candidates.add(part)
-                for candidate in candidates:
-                    pattern = _value_pattern(candidate)
-                    if pattern:
-                        self._patterns.append((entity_type.upper(), re.compile(pattern)))
+            patterns = [
+                p
+                for c in sorted(candidates, key=len, reverse=True)
+                if (p := _value_pattern(c)) is not None
+            ]
+            if patterns:
+                combined = "|".join(f"(?:{p})" for p in patterns)
+                self._patterns.append((entity_type.upper(), re.compile(combined)))
 
     def analyze(self, data: AnalysisInput) -> list[Detection]:
         out = []

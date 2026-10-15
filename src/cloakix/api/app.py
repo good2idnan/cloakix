@@ -13,6 +13,8 @@ Variable                        Meaning                                     Defa
 ``CLOAKIX_API_KEY``             if set, required in the ``X-API-Key`` header (none)
 ``CLOAKIX_MAX_TEXT_LENGTH``     maximum characters per text                 ``20000``
 ``CLOAKIX_MAX_BATCH_SIZE``      maximum texts per batch request             ``100``
+``CLOAKIX_MAX_KNOWN_VALUES``    maximum known values per request            ``200``
+``CLOAKIX_MAX_BATCH_CHARS``     maximum total characters per batch          ``100000``
 ==============================  ==========================================  ================
 
 Request texts are never logged.
@@ -28,7 +30,9 @@ from typing import Annotated, Literal
 
 try:
     from fastapi import Depends, FastAPI, Header, HTTPException, Request
-    from pydantic import BaseModel, Field
+    from fastapi.exceptions import RequestValidationError
+    from fastapi.responses import JSONResponse
+    from pydantic import BaseModel, Field, field_validator
 except ImportError as exc:  # pragma: no cover - depends on environment
     raise ImportError('The API needs extra packages: pip install "cloakix[api]"') from exc
 
@@ -86,23 +90,49 @@ def create_app(masker: Masker | None = None) -> FastAPI:
     """Build the FastAPI app. Pass a ``Masker`` to override environment configuration."""
     max_len = int(os.environ.get("CLOAKIX_MAX_TEXT_LENGTH", "20000"))
     max_batch = int(os.environ.get("CLOAKIX_MAX_BATCH_SIZE", "100"))
+    max_known = int(os.environ.get("CLOAKIX_MAX_KNOWN_VALUES", "200"))
+    max_batch_chars = int(os.environ.get("CLOAKIX_MAX_BATCH_CHARS", "100000"))
     api_key = os.environ.get("CLOAKIX_API_KEY")
 
-    class MaskRequest(BaseModel):
-        text: str = Field(max_length=max_len, examples=["اسمي أحمد، جوالي 0551234567"])
-        operator: Operator | None = Field(default=None, description="Override the default")
-        known: dict[str, list[str]] | None = Field(
+    KnownValue = Annotated[str, Field(min_length=1, max_length=200)]
+
+    class KnownMixin(BaseModel):
+        known: dict[str, list[KnownValue]] | None = Field(
             default=None,
             description='Values you already know, e.g. {"PERSON": ["Ahmed Ali"]}',
         )
 
-    class AnalyzeRequest(BaseModel):
+        @field_validator("known")
+        @classmethod
+        def _limit_known(cls, value: dict[str, list[str]] | None) -> dict[str, list[str]] | None:
+            if value is None:
+                return value
+            unknown = sorted({k.upper() for k in value} - set(ENTITIES))
+            if unknown:
+                raise ValueError(f"unknown identifier types: {', '.join(unknown)}")
+            if sum(len(v) for v in value.values()) > max_known:
+                raise ValueError(f"at most {max_known} known values per request")
+            return value
+
+    class MaskRequest(KnownMixin):
+        text: str = Field(max_length=max_len, examples=["اسمي أحمد، جوالي 0551234567"])
+        operator: Operator | None = Field(default=None, description="Override the default")
+
+    class AnalyzeRequest(KnownMixin):
         text: str = Field(max_length=max_len)
-        known: dict[str, list[str]] | None = None
 
     class BatchRequest(BaseModel):
         texts: list[Annotated[str, Field(max_length=max_len)]] = Field(max_length=max_batch)
         operator: Operator | None = None
+
+        @field_validator("texts")
+        @classmethod
+        def _limit_total(cls, value: list[str]) -> list[str]:
+            # The NER models cost roughly 1 s per 4,000 characters on a CPU; cap the batch
+            # so one request cannot occupy the server for minutes.
+            if sum(len(t) for t in value) > max_batch_chars:
+                raise ValueError(f"at most {max_batch_chars} characters per batch")
+            return value
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -117,8 +147,21 @@ def create_app(masker: Masker | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
+        # FastAPI's default 422 body includes the submitted input, which may contain the very
+        # personal data this service exists to protect. Return only where and why it failed.
+        detail = [
+            {"loc": list(e.get("loc", ())), "msg": e.get("msg", ""), "type": e.get("type", "")}
+            for e in exc.errors()
+        ]
+        return JSONResponse(status_code=422, content={"detail": detail})
+
     def check_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
-        if api_key and not (x_api_key and secrets.compare_digest(x_api_key, api_key)):
+        # Compare bytes: compare_digest raises on non-ASCII str, which would surface as a 500.
+        if api_key and not (
+            x_api_key and secrets.compare_digest(x_api_key.encode("utf-8"), api_key.encode("utf-8"))
+        ):
             raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key")
 
     def get_masker(request: Request) -> Masker:

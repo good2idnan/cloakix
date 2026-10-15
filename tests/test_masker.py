@@ -96,3 +96,11 @@ def test_batch(masker: Masker) -> None:
 
 def test_empty_text(masker: Masker) -> None:
     assert masker.mask("").text == ""
+
+
+def test_very_long_words_are_kept_away_from_ner_segments() -> None:
+    from cloakix.segments import script_segments
+
+    text = "Sara Ali " + "a/" * 5000 + " Omar Khan"
+    segments = script_segments(text)
+    assert [text[s:e] for s, e, _ in segments] == ["Sara Ali", "Omar Khan"]

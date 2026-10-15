@@ -41,7 +41,10 @@ X-API-Key: change-me
 ```
 
 `start`/`end` are character offsets into the text you sent. Original values are never returned
-or logged.
+or logged, and validation errors (HTTP 422) report only the field and the reason, never the text.
+
+`known` accepts up to 200 values (each up to 200 characters), keyed by identifier type such as
+`PERSON`, `PHONE` or `MRN`.
 
 ## Configuration
 
@@ -55,6 +58,12 @@ or logged.
 | `CLOAKIX_API_KEY` | *(none)* | If set, required in the `X-API-Key` header |
 | `CLOAKIX_MAX_TEXT_LENGTH` | `20000` | Maximum characters per text |
 | `CLOAKIX_MAX_BATCH_SIZE` | `100` | Maximum texts per batch |
+| `CLOAKIX_MAX_KNOWN_VALUES` | `200` | Maximum `known` values per request |
+| `CLOAKIX_MAX_BATCH_CHARS` | `100000` | Maximum total characters per batch request |
 
 Run the API inside your own network. Put a TLS-terminating proxy in front of it if it is
-reachable from other machines.
+reachable from other machines, with request-size and rate limits.
+
+**Capacity:** with the NER models, one worker processes roughly 4,000 characters per second
+on a CPU (a typical comment takes about 40 ms). Requests share the models, so for parallel
+traffic run more workers or containers (`cloakix serve --workers 2`, ~700 MB RAM each).

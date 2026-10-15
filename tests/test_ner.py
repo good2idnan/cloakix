@@ -46,3 +46,23 @@ def test_model_does_not_mask_labels_and_common_words(
 def test_english_name_and_city(ner_masker: Masker) -> None:
     result = ner_masker.mask("I came with John Smith from Dubai.")
     assert result.text == "I came with <PERSON_1> from <LOCATION_1>."
+
+
+def test_loading_does_not_download_unpinned_weights(monkeypatch: pytest.MonkeyPatch) -> None:
+    """transformers would otherwise fetch a converted copy from an unmerged Hub pull request."""
+    pytest.importorskip("transformers")
+    import os
+
+    import transformers.modeling_utils as modeling_utils
+
+    from cloakix.languages import LANGUAGES
+    from cloakix.ner.transformers_ner import TransformersNerRecognizer
+
+    calls: list[object] = []
+    monkeypatch.setattr(modeling_utils, "auto_conversion", lambda *a, **k: calls.append(a))
+    monkeypatch.delenv("DISABLE_SAFETENSORS_CONVERSION", raising=False)
+    spec = LANGUAGES["ar"].ner_model
+    assert spec is not None
+    TransformersNerRecognizer(spec).load()
+    assert calls == []
+    assert "DISABLE_SAFETENSORS_CONVERSION" not in os.environ  # caller's environment restored

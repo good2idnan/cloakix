@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import bisect
 from collections.abc import Iterable
 
 from cloakix.recognizers.base import Detection
@@ -68,8 +69,16 @@ def resolve(detections: Iterable[Detection], text: str) -> list[Detection]:
     """
     candidates = _merge_same_type(list(detections), text)
     candidates.sort(key=lambda d: (-d.score, _rank(d.type), -(d.end - d.start), d.start))
+    # Chosen spans never overlap and are kept sorted by start, so a new span can only
+    # collide with its two neighbours: O(n log n) instead of comparing with every span.
+    starts: list[int] = []
     chosen: list[Detection] = []
     for d in candidates:
-        if all(d.end <= c.start or d.start >= c.end for c in chosen):
-            chosen.append(d)
-    return sorted(chosen, key=lambda d: d.start)
+        i = bisect.bisect_left(starts, d.start)
+        if i > 0 and chosen[i - 1].end > d.start:
+            continue
+        if i < len(chosen) and chosen[i].start < d.end:
+            continue
+        starts.insert(i, d.start)
+        chosen.insert(i, d)
+    return chosen
