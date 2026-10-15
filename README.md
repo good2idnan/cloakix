@@ -71,16 +71,6 @@ curl -X POST localhost:8000/v1/mask -H "Content-Type: application/json" \
 # {"masked_text": "Call me on <PHONE_1>", "entities": [...]}
 ```
 
-**Any language (PHP example)**
-
-```php
-$ch = curl_init('http://localhost:8000/v1/mask');
-curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-    CURLOPT_POSTFIELDS => json_encode(['text' => $comment], JSON_UNESCAPED_UNICODE)]);
-$masked = json_decode(curl_exec($ch), true)['masked_text'];
-```
-
 ## Examples
 
 <table>
@@ -138,14 +128,7 @@ text ─► normalize ─► detect ──────────────�
 | English names and places | [BERT-base NER](https://huggingface.co/dslim/bert-base-NER) (MIT) | optional `[ner]` |
 | Model runtime | Hugging Face Transformers + PyTorch, CPU is enough | optional `[ner]` |
 | REST API | FastAPI · Uvicorn · Pydantic | optional `[api]` |
-| Packaging | Docker image with models included (offline), Hatchling | |
-| Quality | pytest (82 tests) · Ruff · mypy | |
-
-**Is it built on Microsoft Presidio?** No. Cloakix borrows Presidio's proven design
-(recognizers → merge → operators) but has its own engine. In our tests Presidio's context
-scoring did not work for Arabic, because it depends on spaCy lemmas and spaCy has no Arabic
-pipeline. Keywords like `رقم الملف` were never used. Cloakix matches context words directly
-on normalized Arabic text instead. [How it works →](docs/how-it-works.md)
+| Packaging | Docker image with the models included, runs offline | |
 
 ## Performance
 
@@ -161,14 +144,6 @@ mixed comments:
 
 Results on synthetic data are a starting point. Always evaluate on a sample of your own data.
 
-## Supported today
-
-| Languages | Regions | Domains |
-|---|---|---|
-| Arabic (MSA, Gulf, Egyptian), English | Saudi Arabia, UAE, Qatar, Kuwait, Bahrain, Oman, Egypt | General, Healthcare |
-
-Each language, country or industry is one plug-in file. See [Extending](docs/extending.md).
-
 ## Documentation
 
 | | |
@@ -177,7 +152,7 @@ Each language, country or industry is one plug-in file. See [Extending](docs/ext
 | [REST API](docs/api.md) | Endpoints, Docker, configuration |
 | [Supported identifiers](docs/entities.md) | Every type and its validation rule |
 | [How it works](docs/how-it-works.md) | Normalization, scoring, merging |
-| [Extending](docs/extending.md) | Add a country, language or industry |
+| [Extending](docs/extending.md) | Add a country, language or industry in one file |
 
 ## Limitations
 

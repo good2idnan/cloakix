@@ -5,7 +5,7 @@ Cloakix is organised as plug-in **packs**. The core engine never changes when yo
 ```
 src/cloakix/
 ├── languages/   one file per language   (context words, titles, NER model)
-├── regions/     one file per country    (phone formats, national IDs)
+├── regions/     one file per country    (phone formats, national IDs, cities)
 └── domains/     one file per industry   (MRN, insurance, …)
 ```
 
